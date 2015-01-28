@@ -46,55 +46,41 @@ Sub exportGEXF()
     
     For Each theTask In ActiveProject.Tasks
         If theTask.taskDependencies.Count > 0 Then
-            'For Each taskDependency In theTask.taskDependencies
-                'First analyze predecessors
-                If InStr(theTask.taskDependencies.Parent.UniqueIDPredecessors, ",") = 0 And theTask.taskDependencies.Parent.UniqueIDPredecessors <> "" Then
-                    If InStr(theTask.taskDependencies.Parent.UniqueIDPredecessors, "+") <> 0 Then
-                        'Filter tasks which have prolongations: <taskID>AA/EA+# <time unit>
-                        edgeSource = Left(theTask.taskDependencies.Parent.UniqueIDPredecessors, 4)
-                    Else
-                        edgeSource = theTask.taskDependencies.Parent.UniqueIDPredecessors
-                    End If
-                    edgeSourceTarget = """ source=""" & edgeSource & """ target=""" & theTask.UniqueID
-                    If InStr(textToExport, edgeSourceTarget) = 0 Then
-                    'If source -> target is not already included in edge list
-                        textToExport = textToExport & vbTab & vbTab & "<edge id=""" & CStr(theCounter) & edgeSourceTarget & """ />" & vbCrLf
-                        theCounter = theCounter + 1
-                    End If
+            'Analyze predecessors
+            If InStr(theTask.taskDependencies.Parent.UniqueIDPredecessors, ",") = 0 And theTask.taskDependencies.Parent.UniqueIDPredecessors <> "" Then
+                If InStr(theTask.taskDependencies.Parent.UniqueIDPredecessors, "+") <> 0 Then
+                    'Filter tasks which have prolongations: <taskID>AA/EA+# <time unit>
+                    edgeSource = Left(theTask.taskDependencies.Parent.UniqueIDPredecessors, 4)
                 Else
-                    linkArray = Split(theTask.taskDependencies.Parent.UniqueIDPredecessors, ",")
-                    linkArrayLength = UBound(linkArray)
-                    If linkArrayLength > 0 Then
-                        For arrayCounter = 0 To linkArrayLength
-                            If linkArray(arrayCounter) <> CStr(theTask.UniqueID) Then
-                                If InStr(linkArray(arrayCounter), "+") <> 0 Then
-                                    'Filter tasks which have prolongations: <taskID>AA/EA+# <time unit>
-                                    edgeSource = Left(linkArray(arrayCounter), 4)
-                                Else
-                                    edgeSource = linkArray(arrayCounter)
-                                End If
-                                edgeSourceTarget = """ source=""" & edgeSource & """ target=""" & theTask.UniqueID
-                                If InStr(textToExport, edgeSourceTarget) = 0 Then
-                                    textToExport = textToExport & vbTab & vbTab & "<edge id=""" & CStr(theCounter) & edgeSourceTarget & """ />" & vbCrLf
-                                    theCounter = theCounter + 1
-                                End If
-                            End If
-                        Next
-                    End If
+                    edgeSource = theTask.taskDependencies.Parent.UniqueIDPredecessors
                 End If
-                
-                'Then analyze Successors
-                'linkArray = Split(taskDependency.To.UniqueIDSuccessors, ",")
-                'linkArrayLength = UBound(linkArray)
-                'If linkArrayLength > 0 Then
-                '    For arrayCounter = 0 To linkArrayLength - 1
-                '        If linkArray(arrayCounter) <> CStr(theTask.UniqueID) Then
-                '            textToExport = textToExport & "<edge id=" & Chr(34) & CStr(theCounter) & Chr(34) & " source=" & Chr(34) & linkArray(arrayCounter) & Chr(34) & " target=" & Chr(34) & theTask.UniqueID & Chr(34) & " />" & vbCrLf
-                '            theCounter = theCounter + 1
-                '        End If
-                '    Next
-                'End If
-            'Next taskDependency
+                edgeSourceTarget = """ source=""" & edgeSource & """ target=""" & theTask.UniqueID
+                If InStr(textToExport, edgeSourceTarget) = 0 Then
+                'If source -> target is not already included in edge list
+                    textToExport = textToExport & vbTab & vbTab & "<edge id=""" & CStr(theCounter) & edgeSourceTarget & """ />" & vbCrLf
+                    theCounter = theCounter + 1
+                End If
+            Else
+                linkArray = Split(theTask.taskDependencies.Parent.UniqueIDPredecessors, ",")
+                linkArrayLength = UBound(linkArray)
+                If linkArrayLength > 0 Then
+                    For arrayCounter = 0 To linkArrayLength
+                        If linkArray(arrayCounter) <> CStr(theTask.UniqueID) Then
+                            If InStr(linkArray(arrayCounter), "+") <> 0 Then
+                                'Filter tasks which have prolongations: <taskID>AA/EA+# <time unit>
+                                edgeSource = Left(linkArray(arrayCounter), 4)
+                            Else
+                                edgeSource = linkArray(arrayCounter)
+                            End If
+                            edgeSourceTarget = """ source=""" & edgeSource & """ target=""" & theTask.UniqueID
+                            If InStr(textToExport, edgeSourceTarget) = 0 Then
+                                textToExport = textToExport & vbTab & vbTab & "<edge id=""" & CStr(theCounter) & edgeSourceTarget & """ />" & vbCrLf
+                                theCounter = theCounter + 1
+                            End If
+                        End If
+                    Next
+                End If
+            End If
         End If
     Next theTask
     
